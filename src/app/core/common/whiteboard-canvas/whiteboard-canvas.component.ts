@@ -1,7 +1,10 @@
 import { Component, OnInit, ElementRef, ViewChild, Input } from '@angular/core';
 import { fromEvent, interval } from 'rxjs';
-import { switchMap, takeUntil, pairwise, bufferTime} from 'rxjs/operators';
+import { switchMap, takeUntil, pairwise, bufferTime, debounceTime} from 'rxjs/operators';
 import { SocketioService } from '../../services/common/socketio.service';
+import { Line } from '../../models/draw/line';
+import { Point } from '../../models/draw/point';
+import { Style } from '../../models/draw/style';
 
 @Component({
   selector: 'app-whiteboard-canvas',
@@ -98,33 +101,36 @@ export class WhiteboardCanvasComponent implements OnInit {
   }
 
   private async emitData(newPoint: any) {
-    
     let newPos = { x: newPoint.clientX, y: newPoint.clientY };
     if (this.sendOldPos && this.oldPos) {
-      let line = [];
-      line.push(this.oldPos);
-      line.push(newPos);
-      console.log("StrokeStarted: " + JSON.stringify(line));
-      this.socketService.draw(line);
+      let ln: Line = new Line();
+      ln.to = new Point(newPos);
+      ln.from = new Point(this.oldPos);
+      ln.style = new Style('#00FF00');
+      console.log("StrokeStarted: " + JSON.stringify(ln));
+      this.socketService.draw(ln);
       this.sendOldPos = false;
     } else {
-      let point = [];
-      point.push(newPos);
-      this.socketService.draw(point);
+      let ln: Line = new Line();
+      ln.to = new Point(newPos);
+      this.socketService.draw(ln);
     }
   }
 
   private drawSync(data) {
-    var line = data.line;
-    this.cx.strokeStyle = '#333333';
+    let line: Line = data.line;
     this.cx.beginPath();
-
-    if (line.length === 2) {
-      this.originPos = { x: line[0].x, y: line[0].y};
-      this.nextPos = { x: line[1].x, y: line[1].y };
-    } else {
-      this.nextPos = { x: line[0].x, y: line[0].y };
+    if (line.from) {
+      this.originPos = line.from;
     }
+    if (line.to) {
+      this.nextPos = line.to;
+    }
+    if(line.style) {
+      this.cx.strokeStyle = line.style.strokeStyle;
+      console.log('draw-sync: ' + line.style.strokeStyle);
+    }
+
     this.cx.moveTo(this.originPos.x, this.originPos.y);
     this.cx.lineTo(this.nextPos.x, this.nextPos.y);
     this.cx.stroke();

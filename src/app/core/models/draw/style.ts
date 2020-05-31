@@ -1,5 +1,8 @@
 export class Style {
-  strokeStyle: string;
+  constructor(strokeStyle: string | CanvasGradient | CanvasPattern) {
+    this.strokeStyle = strokeStyle;
+  }
+  strokeStyle: string | CanvasGradient | CanvasPattern;
   color: string;
   fillStyle: string;
   lineWidth: number;
