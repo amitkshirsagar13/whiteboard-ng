@@ -20,16 +20,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'white-board'`, () => {
+  it(`should have as title 'whiteboard-ng'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('white-board');
+    expect(app.title).toEqual('whiteboard-ng');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('white-board app is running!');
+    expect(compiled.querySelector('.content span').textContent).toContain('whiteboard-ng app is running!');
   });
 });

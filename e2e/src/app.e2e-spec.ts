@@ -10,7 +10,7 @@ describe('workspace-project App', () => {
 
   it('should display welcome message', () => {
     page.navigateTo();
-    expect(page.getTitleText()).toEqual('white-board app is running!');
+    expect(page.getTitleText()).toEqual('whiteboard-ng app is running!');
   });
 
   afterEach(async () => {

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "white-board": {
+    "whiteboard-ng": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/white-board",
+            "outputPath": "dist/whiteboard-ng",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -66,18 +66,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "white-board:build"
+            "browserTarget": "whiteboard-ng:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "white-board:build:production"
+              "browserTarget": "whiteboard-ng:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "white-board:build"
+            "browserTarget": "whiteboard-ng:build"
           }
         },
         "test": {
@@ -114,18 +114,18 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "white-board:serve"
+            "devServerTarget": "whiteboard-ng:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "white-board:serve:production"
+              "devServerTarget": "whiteboard-ng:serve:production"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "white-board",
+  "defaultProject": "whiteboard-ng",
   "cli": {
     "analytics": "ef6605e6-1dc8-42b0-99d6-72eaef962d92"
   }
