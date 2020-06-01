@@ -3,22 +3,35 @@
         Canvas Header
     </div>
     <div class="card-body">
-        <div class="col-xl-2"></div>
+        <div class="col-xl-2">
+        </div>
         <div class="col-xl-8">
-            <canvas #canvas class="card-canvas"></canvas>
+            <div class="push" style=" display: inline;">
+                <canvas #canvas class="card-canvas"></canvas>
+            </div>
+            <div id="colorToolbar" style="border: 1px solid black; float: left; display: inline;">
+                <div (click)='chooseColor("#ff0000")' style="background:#ff0000; width:50px; height:50px; float:left;"></div>
+                <div style="clear: both;"></div>
+                <div (click)='chooseColor("#ffa500")' style="background:#ffa500; width:50px; height:50px; float:left;"></div>
+                <div style="clear: both;"></div>
+                <div (click)='chooseColor("#ffff00")' style="background:#ffff00; width:50px; height:50px; float:left;"></div>
+                <div style="clear: both;"></div>
+                <div (click)='chooseColor("#00ff00")' style="background:#00ff00; width:50px; height:50px; float:left;"></div>
+                <div style="clear: both;"></div>
+                <div (click)='chooseColor("#008000")' style="background:#008000; width:50px; height:50px; float:left;"></div>
+                <div style="clear: both;"></div>
+                <div (click)='chooseColor("#0000ff")' style="background:#0000ff; width:50px; height:50px; float:left;"></div>
+                <div style="clear: both;"></div>
+                <div (click)='chooseColor("#800080")' style="background:#800080; width:50px; height:50px; float:left;"></div>
+                <div style="clear: both;"></div>
+                <div (click)='chooseColor("#000000")'
+                    style="background:#000000; width:50px; height:50px; float:left; border: 1px dashed #ffffff;"></div>
+                <div style="clear: both;"></div>
+            </div>
         </div>
         <div class="col-xl-2"></div>
     </div>
     <div class="card-footer">
         Footer
-    </div>
-</div>
-<br><br><br>
-<div class="card" style="margin: 5rem;">
-    <div class="card-header">
-        Canvas Header
-    </div>
-    <div class="card-body">
-        Hello you
     </div>
 </div>

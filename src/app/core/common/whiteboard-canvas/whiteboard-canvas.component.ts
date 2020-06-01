@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild, Input } from '@angular/core';
 import { fromEvent, interval } from 'rxjs';
-import { switchMap, takeUntil, pairwise, bufferTime, debounceTime, sampleTime} from 'rxjs/operators';
+import { switchMap, takeUntil, pairwise, bufferTime, debounceTime, sampleTime, tap} from 'rxjs/operators';
 import { SocketioService } from '../../services/common/socketio.service';
 import { Line } from '../../models/draw/line';
 import { Point } from '../../models/draw/point';
@@ -21,6 +21,8 @@ export class WhiteboardCanvasComponent implements OnInit {
     this.socketService.socket.on('draw-sync', (data: any) => {
       this.drawSync(data);
     });
+    this.style = new Style('#000000');
+    this.style.lineWidth = 3;
   }
 
   @ViewChild('canvas') public canvas: ElementRef;
@@ -30,6 +32,8 @@ export class WhiteboardCanvasComponent implements OnInit {
   @Input() public height = 400;
   private cx: CanvasRenderingContext2D;
 
+  private style: Style;
+
   public ngAfterViewInit() {
     // get the context
     const canvasEl: HTMLCanvasElement = this.canvas.nativeElement;
@@ -38,11 +42,10 @@ export class WhiteboardCanvasComponent implements OnInit {
     // set the width and height
     canvasEl.width = this.width;
     canvasEl.height = this.height;
-
     // set some default properties about the line
-    this.cx.lineWidth = 3;
     this.cx.lineCap = 'round';
-    this.cx.strokeStyle = '#000';
+    this.cx.lineWidth = this.style.lineWidth;
+    this.cx.strokeStyle = this.style.strokeStyle;
 
     // we'll implement this method to start capturing mouse events
     this.captureEvents(canvasEl);
@@ -52,7 +55,7 @@ export class WhiteboardCanvasComponent implements OnInit {
   private nextPos: any;
   public oldPos: any;
   public sendOldPos: boolean = false;
-  private sampleTime: number = 100;
+  private sampleTime: number = 80;
 
   private captureEvents(canvasEl: HTMLCanvasElement) {
     // this will capture all mousedown events from the canvas element
@@ -64,7 +67,7 @@ export class WhiteboardCanvasComponent implements OnInit {
           this.oldPos = undefined;
           return fromEvent(canvasEl, 'mousemove')
             .pipe(
-              sampleTime(this.sampleTime),
+              sampleTime(this.getSampleTime()),
               // we'll stop (and unsubscribe) once the user releases the mouse
               // this will trigger a 'mouseup' event    
               takeUntil(fromEvent(canvasEl, 'mouseup')),
@@ -79,6 +82,9 @@ export class WhiteboardCanvasComponent implements OnInit {
       .subscribe((res: [MouseEvent, MouseEvent]) => {
         const rect = canvasEl.getBoundingClientRect();
         // previous and current position with the offset
+
+        // let speed = this.getDistance(res, rect);
+        
 
         if (this.sendOldPos) {
           this.oldPos = {
@@ -101,21 +107,24 @@ export class WhiteboardCanvasComponent implements OnInit {
       });
   }
 
+  sendStyle: boolean = false;
   private async emitData(newPoint: any) {
     let newPos = { x: newPoint.clientX, y: newPoint.clientY };
+    let ln: Line = new Line();
     if (this.sendOldPos && this.oldPos) {
-      let ln: Line = new Line();
       ln.to = new Point(newPos);
       ln.from = new Point(this.oldPos);
-      ln.style = new Style('#00FF00');
       console.log("StrokeStarted: " + JSON.stringify(ln));
-      this.socketService.draw(ln);
-      this.sendOldPos = false;
     } else {
-      let ln: Line = new Line();
       ln.to = new Point(newPos);
-      this.socketService.draw(ln);
     }
+    if (this.sendStyle) {
+      ln.style = new Style('#00FF00');
+      ln.style.strokeStyle = this.style.strokeStyle;
+    }
+    this.socketService.draw(ln);
+    this.sendOldPos = false;
+    this.sendStyle = false;
   }
 
   private drawSync(data) {
@@ -132,9 +141,44 @@ export class WhiteboardCanvasComponent implements OnInit {
       console.log('draw-sync: ' + line.style.strokeStyle);
     }
 
+
     this.cx.moveTo(this.originPos.x, this.originPos.y);
     this.cx.lineTo(this.nextPos.x, this.nextPos.y);
     this.cx.stroke();
     this.originPos = this.nextPos;
+  }
+
+  getDistance(res, rect) {
+    let a = {
+      x: res[0].clientX - rect.left,
+      y: res[0].clientY - rect.top
+    };
+    let b = {
+      x: res[1].clientX - rect.left,
+      y: res[1].clientY - rect.top
+    };
+    let distance = Math.sqrt(
+      Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2)
+    );
+    if (distance < 20) {
+      this.sampleTime = 100;
+    } else if (20 < distance && distance < 50) {
+      this.sampleTime = 75;
+    } else if (50 < distance && distance < 100) {
+      this.sampleTime = 50;
+    } else {
+      this.sampleTime = 40;
+    }
+    return distance;
+  }
+
+  getSampleTime() {
+    return this.sampleTime;
+  }
+
+  chooseColor(color) {
+    this.sendStyle = true;
+    this.style.strokeStyle = color;
+    console.log(this.style.strokeStyle);
   }
 }
