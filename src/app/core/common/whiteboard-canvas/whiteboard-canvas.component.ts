@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild, Input } from '@angular/core';
 import { fromEvent, interval } from 'rxjs';
-import { switchMap, takeUntil, pairwise, bufferTime, debounceTime} from 'rxjs/operators';
+import { switchMap, takeUntil, pairwise, bufferTime, debounceTime, sampleTime} from 'rxjs/operators';
 import { SocketioService } from '../../services/common/socketio.service';
 import { Line } from '../../models/draw/line';
 import { Point } from '../../models/draw/point';
@@ -52,6 +52,7 @@ export class WhiteboardCanvasComponent implements OnInit {
   private nextPos: any;
   public oldPos: any;
   public sendOldPos: boolean = false;
+  private sampleTime: number = 100;
 
   private captureEvents(canvasEl: HTMLCanvasElement) {
     // this will capture all mousedown events from the canvas element
@@ -63,7 +64,7 @@ export class WhiteboardCanvasComponent implements OnInit {
           this.oldPos = undefined;
           return fromEvent(canvasEl, 'mousemove')
             .pipe(
-              
+              sampleTime(this.sampleTime),
               // we'll stop (and unsubscribe) once the user releases the mouse
               // this will trigger a 'mouseup' event    
               takeUntil(fromEvent(canvasEl, 'mouseup')),
