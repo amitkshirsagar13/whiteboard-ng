@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild, Input } from '@angular/core';
 import { fromEvent, interval } from 'rxjs';
-import { switchMap, takeUntil, pairwise, bufferTime, debounceTime, sampleTime, tap} from 'rxjs/operators';
+import { switchMap, takeUntil, pairwise, bufferTime, debounceTime, sampleTime, tap } from 'rxjs/operators';
 import { SocketioService } from '../../services/common/socketio.service';
 import { Line } from '../../models/draw/line';
 import { Point } from '../../models/draw/point';
@@ -84,7 +84,7 @@ export class WhiteboardCanvasComponent implements OnInit {
         // previous and current position with the offset
 
         // let speed = this.getDistance(res, rect);
-        
+
 
         if (this.sendOldPos) {
           this.oldPos = {
@@ -121,6 +121,9 @@ export class WhiteboardCanvasComponent implements OnInit {
     if (this.sendStyle) {
       ln.style = new Style('#00FF00');
       ln.style.strokeStyle = this.style.strokeStyle;
+      if (this.style.lineWidth) {
+        ln.style.lineWidth = this.style.lineWidth;
+      }
     }
     this.socketService.draw(ln);
     this.sendOldPos = false;
@@ -136,9 +139,9 @@ export class WhiteboardCanvasComponent implements OnInit {
     if (line.to) {
       this.nextPos = line.to;
     }
-    if(line.style) {
+    if (line.style) {
       this.cx.strokeStyle = line.style.strokeStyle;
-      console.log('draw-sync: ' + line.style.strokeStyle);
+      this.cx.lineWidth = line.style.lineWidth;
     }
 
 
@@ -179,6 +182,12 @@ export class WhiteboardCanvasComponent implements OnInit {
   chooseColor(color) {
     this.sendStyle = true;
     this.style.strokeStyle = color;
+    console.log(this.style.strokeStyle);
+  }
+
+  choosePensil(lineWidth) {
+    this.sendStyle = true;
+    this.style.lineWidth = lineWidth;
     console.log(this.style.strokeStyle);
   }
 }
